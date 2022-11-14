@@ -69,11 +69,42 @@ ggplot(siteyear_summary,
 ggsave("figures/lobsters-col.png")
 ```
 
-`"There are #r nrow(lobsters)# total lobsters included in this report."`
+`There are 6366 total lobsters included in this report.`
 
-```{r}
+```{r count with dyplyr}
+lobsters %>% 
+  count(site, year)
+
+##^^ that is the same as:
+lobsters %>% 
+  group_by(site, year) %>% 
+  summarise(n = n()) %>% 
+  ungroup()
+```
+
+## Mutate
+
+Make new variables! There are a lot of times where you don’t want to summarize your data, but you do want to operate beyond the original data. This is often done by adding a column. We do this with the mutate() function from dplyr.
+
+```{r mutate and select}
+
+lobsters %>% 
+  mutate(size_m = size_mm/1000)
 
 
+#If we want to add a column that has the same value repeated, we can pass it just one value, either a number or a character string (in quotes).
+
+lobsters_detailed <- lobsters %>% 
+                        mutate(size_m = size_mm/1000,
+                               millenia = 2000,
+                               observer = "Allison Horst")
+
+# select () allows us to choose, retain, and move data by columns.
+lobsters_detailed %>% 
+  select(date, site, size_m)
+
+# view variable
+lobsters_detailed
 ```
 
 
