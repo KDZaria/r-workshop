@@ -16,26 +16,64 @@ library(skimr)
 library(kableExtra)
 
 ## read in data
-lobsters <- read_xlsx("data/lobsters.xlsx", skip = 4)
+lobsters <- read_xlsx("data/lobsters2.xlsx", skip = 4)
 
 # explore data
 skimr::skim(lobsters)
 ```
 
-## R Markdown
+## Pivot Tables
 
 
+```{r pivots}
+lobsters %>% 
+  group_by(year) %>% 
+  summarise(count_by_year = n())
 
-```{r cars}
-summary(cars)
+# group by multiple variables
+lobsters %>% 
+  group_by(site, year) %>% 
+  summarise(count_by_siteyear = n())
+
+# summarise multiple variables
+siteyear_summary <- lobsters %>% 
+                      group_by(site, year) %>% 
+                      summarise(count_by_siteyear = n(),
+                                mean_size_mm = mean(size_mm, na.rm = TRUE),
+                                sd_size_mm = sd(size_mm, na.rm = TRUE))
+
+## add median
+siteyear_summary <- lobsters %>% 
+                      group_by(site, year) %>% 
+                      summarise(count_by_siteyear = n(),
+                                mean_size_mm = mean(size_mm, na.rm = TRUE),
+                                sd_size_mm = sd(size_mm, na.rm = TRUE),
+                                median_size_mm = median(size_mm, na.rm = TRUE))
+
+
+## inspect our new variable
+siteyear_summary
+
+## make a table with our new variable
+siteyear_summary %>% 
+  kable()
+
+## plot data
+ggplot(siteyear_summary,
+       aes(x = year,
+           y = median_size_mm)) +
+  geom_col() +
+  facet_wrap(~site)
+
+## save image
+ggsave("figures/lobsters-col.png")
 ```
 
-## Including Plots
+`"There are #r nrow(lobsters)# total lobsters included in this report."`
 
-You can also embed plots, for example:
+```{r}
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+
 ```
 
-Note
+
