@@ -1,0 +1,41 @@
+---
+title: "pivot_lobsters"
+author: "KDZaria"
+date: "2022-11-14"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+## attach libraries
+library(tidyverse)
+library(readxl)
+library(here)
+library(skimr)
+library(kableExtra)
+
+## read in data
+lobsters <- read_xlsx("data/lobsters.xlsx", skip = 4)
+
+# explore data
+skimr::skim(lobsters)
+```
+
+## R Markdown
+
+
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note
