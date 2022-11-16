@@ -1,0 +1,112 @@
+---
+title: "PIVOTS"
+author: "KDZaria"
+date: "2022-11-16"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Attach packages
+library(tidyverse)
+library(janitor)
+library(here)
+library(readxl)
+```
+
+```{r pivots}
+
+inverts <- read_excel("data/inverts.xlsx")
+
+View(inverts)
+names(inverts)
+summary(inverts)
+
+inverts_long <- pivot_longer(data = inverts,
+                                    cols = '2016':'2018',
+                                    names_to = "year",
+                                    values_to = "sp_count")
+
+```
+
+The year column in inverts_long is currently stored as a character type. use mutate() to change it to numeric.
+
+```{r mutate}
+
+inverts_long <- inverts_long %>% 
+                  mutate(year = as.numeric(year))
+
+class(inverts_long$year)
+
+inverts_long
+```
+
+```{r wide_format}
+
+inverts_wide <- inverts_long %>% 
+                  pivot_wider(names_from = common_name,
+                              values_from = sp_count)
+
+inverts_wide
+```
+
+```{r clean_col_names}
+
+inverts_wide <- inverts_wide %>% 
+                  clean_names()
+
+names(inverts_wide)
+
+```
+
+```{r merge_info_from_separate_cols}
+
+inverts_unite <- inverts_long %>% 
+                    unite(col = "site_year", # What to name the new united column
+                          c(site, year), # The columns we'll unite (site, year)
+                          sep = "_") # How to separate the things we're uniting
+
+inverts_moyr <- inverts_long %>% 
+                    unite(col = "mo_yr",
+                          c(month, year),
+                          sep = "/")
+
+# uniting > 2 cols:
+
+inverts_triple_unite <- inverts_long %>% 
+                          unite(col = "year_site_name",
+                                c(year, site, common_name),
+                                sep = "-")
+
+inverts_triple_unite
+```
+
+```{r separate_info_from_merged_cols}
+
+inverts_sep <- inverts_unite %>% 
+                  separate(site_year, into = c("my_site", "my_year"))
+
+inverts_sep
+```
+
+Was data entered in a way that’s difficult to code with, or is just plain annoying? Did someone wrongly enter “fish” as “fsh” throughout the spreadsheet, and you want to update it everywhere?
+
+Use stringr::str_replace() to automatically replace a string pattern.
+
+Warning: The pattern will be replaced everywhere - so if you ask to replace “fsh” with “fish,” then “offshore” would be updated to “offishore.” Be careful to ensure that when you think you’re making one replacement, you’re not also replacing something else unexpectedly.
+
+
+```{r replace values}
+
+ca_abbr <- inverts %>% 
+            mutate(common_name = str_replace(common_name,
+                                             pattern = "california",
+                                             replacement = "CA"))
+
+ca_abbr
+
+```
+
+
+
